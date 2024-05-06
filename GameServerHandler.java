@@ -31,8 +31,7 @@ public class GameServerHandler extends Thread {
     public void run() {
         if(!GameServerHandler.createThreadCheck){
             GameServerHandler.createThreadCheck = true;
-            Thread p = new Thread(new Runnable() {
-                @Override
+            Thread p = new Thread(){
                 public void run() {
                     while (true) {
                         GameServerHandler.problem = getProblem();
@@ -48,7 +47,7 @@ public class GameServerHandler extends Thread {
                         }
                     }
                 }
-            });
+            };
             p.start();
         }
         
