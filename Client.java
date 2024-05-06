@@ -16,6 +16,10 @@ public class Client extends Thread {
     private Socket socket;
     private String name;
     private boolean connect;
+    public int[] number;
+    public int[] checkNumber = new int[10];
+    public int time = 30;
+    public boolean alreadyAnswered = false;
 
 
     public Client(int port, String serverAddress) {
@@ -60,13 +64,12 @@ public class Client extends Thread {
 
             
             EnterGame.addActionListener(e -> {
-                System.out.println("Button pressed");
                 
                 frame.getContentPane().removeAll(); 
                 frame.setLayout(new GridLayout(3, 3));
                
 
-                JLabel gameName = new JLabel("Game 24");
+                JLabel gameName = new JLabel("     Game 24");
                 Font gameNameFont = gameName.getFont();
                 gameName.setFont(new Font(gameNameFont.getName(), Font.PLAIN, 20));
 
@@ -79,70 +82,89 @@ public class Client extends Thread {
                 JLabel playerNameLabel = new JLabel("Player: " + playerName);
                 Font playerNameFont = playerNameLabel.getFont();
                 playerNameLabel.setFont(new Font(playerNameFont.getName(), Font.PLAIN, 20));
-                
-                JLabel problem = new JLabel("Problem: " + getRandom() + " " + getRandom() + " " + getRandom() + " " + getRandom());
+
+                JLabel problem = new JLabel("Problem: ");
                 Font problemFont = problem.getFont();
-                problem.setFont(new Font(problemFont.getName(), Font.PLAIN, 20));
+                    problem.setFont(new Font(problemFont.getName(), Font.PLAIN, 20));
+
+                try{
+                    sendData("getProblem");
+                    number = recvINTArrayData();
+                    problem.setText("Problem: " + number[0]  + " " + number[1] + " " + number[2] + " " + number[3]);
+                }
+                catch(IOException e2){
+                    System.out.println("Error in getProblem");
+                }
+
+             
 
                 JPanel sPanel = new JPanel();
                 sPanel.setLayout(new GridLayout(4, 1));
 
                 JLabel score1 = new JLabel("");
                 Font scoreFont = score1.getFont();
-                score1.setFont(new Font(scoreFont.getName(), Font.PLAIN, 20));
+                score1.setFont(new Font(scoreFont.getName(), Font.PLAIN, 17));
 
                 JLabel score2 = new JLabel("");
-                score2.setFont(new Font(scoreFont.getName(), Font.PLAIN, 20));
+                score2.setFont(new Font(scoreFont.getName(), Font.PLAIN, 17));
                 
                 JLabel score3 = new JLabel("");
-                score3.setFont(new Font(scoreFont.getName(), Font.PLAIN, 20));
+                score3.setFont(new Font(scoreFont.getName(), Font.PLAIN, 17));
 
                 JLabel score4 = new JLabel("");
-                score4.setFont(new Font(scoreFont.getName(), Font.PLAIN, 20));
+                score4.setFont(new Font(scoreFont.getName(), Font.PLAIN, 17));
 
                 sPanel.add(score1);
                 sPanel.add(score2);
                 sPanel.add(score3);
                 sPanel.add(score4);
 
-                JLabel p2 = new JLabel("");
+                JLabel info = new JLabel("     Can Use +, -, *, / to get 24 only");
                 
                 JLabel timeLeftLabel = new JLabel("Time: 30");
                 Font timeLeftFont = timeLeftLabel.getFont();
                 timeLeftLabel.setFont(new Font(timeLeftFont.getName(), Font.PLAIN, 20));
                 
-                JLabel p4 = new JLabel("");
-                
-                JTextField p5 = new JTextField(35);
-                p5.setSize(new Dimension(50,40));
+                JLabel warning = new JLabel("");
+                Font warningFont = warning.getFont();
+                warning.setFont(new Font(warningFont.getName(), Font.PLAIN, 20));
+                                
+                JTextField input = new JTextField(35);
+                input.setSize(new Dimension(50,40));
                 
                 JButton submit = new JButton("Submit");
                 submit.setPreferredSize(new Dimension(100, 50));
 
-
-                final int[] timel = {30};
-
-                Thread t2 = new Thread() {
+                Thread timer = new Thread() {
                     public void run() {
-                        timel[0] = 30;
+                       
                         while (true) {
-                            timeLeftLabel.setText("Time: " + timel[0]);
-                            try {
-                                Thread.sleep(1000);
-                                timel[0]--;
-                                if (timel[0] == 0) {
-                                    problem.setText("Problem: " + getRandom() + " " + getRandom() + " " + getRandom() + " " + getRandom());
-                                    timel[0] = 30;
+                            try{
+                                sendData("time");
+                                time = recvINTData();
+                                timeLeftLabel.setText("Time: " + time);
+                            } catch (IOException e1){
+                                System.out.println("Error in time");
+                            }
+                            try{
+                                sendData("getProblem");
+                                number = recvINTArrayData();
+                                problem.setText("Problem: " + number[0]  + " " + number[1] + " " + number[2] + " " + number[3]);
+                                if(time == 0){
+                                    alreadyAnswered = false;
+                                    warning.setText("");
                                 }
-                            } catch (InterruptedException e) {
-                                System.out.println("Error in t2");
+                                Thread.sleep(1000);
+                            }
+                            catch(IOException | InterruptedException e2){
+                                System.out.println("Error in getProblem");
                             }
                         }
                         
                     }
                 };
 
-                Thread t3 = new Thread(){
+                Thread getScore = new Thread(){
                     public void run(){
                         while (true){
                             try {
@@ -170,14 +192,14 @@ public class Client extends Thread {
                 frame.add(gameName);
                 frame.add(playerNameLabel);
                 frame.add(sPanel);
-                frame.add(p2);
+                frame.add(info);
                 frame.add(problem);
                 frame.add(timeLeftLabel);
-                frame.add(p4);
-                frame.add(p5);
+                frame.add(warning);
+                frame.add(input);
                 frame.add(submit);
-                t2.start();
-                t3.start();
+                timer.start();
+                getScore.start();
 
 
                 try{
@@ -187,16 +209,21 @@ public class Client extends Thread {
                 }
                 
                 submit.addActionListener(e1 -> {   
-                    String answer = p5.getText();
+                    String answer = input.getText();
                     boolean c = checkAns(answer);
-                    if(c){
-                        timel[0] = 30;
-                        problem.setText("Problem: " + getRandom() + " " + getRandom() + " " + getRandom() + " " + getRandom());
+                    if(alreadyAnswered){
+                        warning.setText("     Already answered");
+                    } else if(!c){
+                        warning.setText("     Incorrect Answer");
+                    }
+                    if(c){                   
                         try {
                             sendData("correct,"+name);
                         } catch (IOException e2) {
                             System.out.println("Error IN submit btn");
                         }
+                        warning.setText("     Correct Answer");
+                        alreadyAnswered = true;
                     }
                     
                 });
@@ -212,10 +239,21 @@ public class Client extends Thread {
     }
 
     public boolean checkAns(String answer){
+        if (alreadyAnswered) {
+            return false;
+        }
+        clearCheckNumber();
         int sum = 0;
         answer = answer.trim();
         answer = clearWSpace(answer);
         int[] num = getNumber(answer);
+        checkNumbers(number);
+        for(int i : num){
+            checkNumber[i]--;
+            if (checkNumber[i] < 0) {
+                return false;
+            }
+        }
         for(int i = 1; i < answer.length(); i = i+2){
             char c = answer.charAt(i);
             if (c < '0' || c > '9') {
@@ -289,11 +327,18 @@ public class Client extends Thread {
         return res;
     }
 
-    public int getRandom(){
-        Random rand = new Random();
-        int n = rand.nextInt(9)+1;
-        return n;
+    private void checkNumbers(int[] num){
+        for(int i = 0; i < num.length; i++){
+            checkNumber[num[i]]++;
+        }
     }
+
+    private void clearCheckNumber(){
+        for(int i = 0; i < checkNumber.length; i++){
+            checkNumber[i] = 0;
+        }
+    }
+    
 
     public void sendData(String data) throws IOException {
         if (out != null) {
@@ -316,6 +361,12 @@ public class Client extends Thread {
         } catch (NumberFormatException e) {
             System.out.println("Error IN int array convert");
         }
+        return res;
+    }
+
+    public int recvINTData() throws IOException {
+        String receivedData = in.readLine();
+        int res = Integer.parseInt(receivedData);
         return res;
     }
 
