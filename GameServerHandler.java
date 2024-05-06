@@ -55,7 +55,6 @@ public class GameServerHandler extends Thread {
         try {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                // System.out.println("(Test In server)Client says: " + inputLine);
 
                 if(inputLine.startsWith("add")){
                     String[] str = inputLine.split(",");
@@ -68,7 +67,6 @@ public class GameServerHandler extends Thread {
                         index = 0; // test
                         player[index]=name; // test
                     }
-
                     
                 }
                 if(inputLine.startsWith("correct")){

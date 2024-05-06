@@ -3,6 +3,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.swing.*;
 import java.util.Random;
 import java.awt.Dimension;
@@ -246,6 +250,7 @@ public class Client extends Thread {
         int sum = 0;
         answer = answer.trim();
         answer = clearWSpace(answer);
+        sum = myeval(answer);
         int[] num = getNumber(answer);
         checkNumbers(number);
         for(int i : num){
@@ -254,60 +259,7 @@ public class Client extends Thread {
                 return false;
             }
         }
-        for(int i = 1; i < answer.length(); i = i+2){
-            char c = answer.charAt(i);
-            if (c < '0' || c > '9') {
-                switch (c) {
-                    case '+':
-                        if(i == 1){
-                            sum = num[0] + num[1];
-                        }
-                        if(i == 3){
-                            sum = sum + num[2];
-                        }
-                        if (i == 5) {
-                            sum = sum + num[3];
-                        }
-                        break;
-                    case '-':
-                        if(i == 1){
-                            sum = num[0] - num[1];
-                        }
-                        if(i == 3){
-                            sum = sum - num[2];
-                        }
-                        if (i == 5) {
-                            sum = sum - num[3];
-                        }
-                        break;
-                    case '*':
-                        if(i == 1){
-                            sum = num[0] * num[1];
-                        }
-                        if(i == 3){
-                            sum = sum * num[2];
-                        }
-                        if (i == 5) {
-                            sum = sum * num[3];
-                        }
-                        break;
-                    case '/':
-                        if(i == 1){
-                            sum = num[0] / num[1];
-                        }
-                        if(i == 3){
-                            sum = sum / num[2];
-                        }
-                        if (i == 5) {
-                            sum = sum / num[3];
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        
+               
         return sum == 24;
     }
 
@@ -327,6 +279,7 @@ public class Client extends Thread {
         return res;
     }
 
+
     private void checkNumbers(int[] num){
         for(int i = 0; i < num.length; i++){
             checkNumber[num[i]]++;
@@ -336,6 +289,17 @@ public class Client extends Thread {
     private void clearCheckNumber(){
         for(int i = 0; i < checkNumber.length; i++){
             checkNumber[i] = 0;
+        }
+    }
+
+    public int myeval(String expression) {
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("js");
+
+        try {
+            return (int) engine.eval(expression);
+        } catch (ScriptException e) {
+            return Integer.MIN_VALUE;
         }
     }
     
