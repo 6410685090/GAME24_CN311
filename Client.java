@@ -243,6 +243,9 @@ public class Client extends Thread {
         if (alreadyAnswered) {
             return false;
         }
+        if(answer.length() > 7){
+            return false;
+        }
         clearCheckNumber();
         int sum = 0;
         answer = answer.trim();
