@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-
 import javax.swing.*;
 import java.util.Random;
 import java.awt.Dimension;
@@ -286,6 +285,7 @@ public class Client extends Thread {
                         break;
                     case '-':
                         if (i == 1) {
+
                             sum = num[0] - num[1];
                         }
                         if (i == 3) {
@@ -328,8 +328,8 @@ public class Client extends Thread {
 
     private boolean checkAnsWithBrackets(String answer) {
         while (answer.contains("(")) {
-            int openIndex = answer.lastIndexOf('(');
-            int closeIndex = answer.indexOf(')', openIndex);
+            int closeIndex = answer.indexOf(')');
+            int openIndex = answer.lastIndexOf('(', closeIndex);
             String subExpr = answer.substring(openIndex + 1, closeIndex);
             int subResult = evaluateSimpleExpression(subExpr);
             answer = answer.substring(0, openIndex) + subResult + answer.substring(closeIndex + 1);
@@ -431,5 +431,4 @@ public class Client extends Thread {
     public void clearInputField(JTextField inputField) {
         inputField.setText("");
     }
-
 }
