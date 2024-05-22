@@ -55,6 +55,18 @@ public class GameServerHandler extends Thread {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
 
+                if(inputLine.equals("exit")){
+                    break;
+                }
+
+                if(inputLine.equals("isFull")){
+                    if(index >= 4){
+                        out.println("true");
+                    } else {
+                        out.println("false");
+                    }
+                }
+
                 if(inputLine.startsWith("add")){
                     String[] str = inputLine.split(",");
                     String name = str[1];

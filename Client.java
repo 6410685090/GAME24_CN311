@@ -15,6 +15,7 @@ public class Client extends Thread {
     private BufferedReader in;
     private Socket socket;
     private String name;
+    private boolean isFull;
     private boolean connect;
     public int[] number;
     public int[] checkNumber = new int[10];
@@ -28,8 +29,17 @@ public class Client extends Thread {
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             {
+                this.isFull = false;
                 System.out.println("Connected to the server.");
                 connect = true;
+                out.println("isFull");
+                String response = in.readLine();
+                if (response.equals("true")) {
+                    this.isFull = true;
+                    connect = false;
+                    System.out.println("Server is full. Try again later.");
+                    socket.close();
+                }
             }
         } catch (IOException e) {
             System.out.println("Error: Unable to connect to the server.");
@@ -38,6 +48,17 @@ public class Client extends Thread {
     }
 
     public void run() {
+        if(this.isFull){
+            JFrame frame = new JFrame("Game Full");
+            frame.setSize(300, 200);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setLayout(new FlowLayout());
+            JLabel label = new JLabel("Server is full. Try again later.");
+            Font labelFont = label.getFont();
+            label.setFont(new Font(labelFont.getName(), Font.PLAIN, 20));
+            frame.add(label);
+            frame.setVisible(true);
+        }
         if (connect) {
             JFrame frame = new JFrame("Game Room");
 
