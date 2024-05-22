@@ -245,7 +245,15 @@ public class Client extends Thread {
         if (alreadyAnswered) {
             return false;
         }
-
+        clearCheckNumber();
+        int[] num = getNumber(answer);
+        checkNumbers(number);
+        for (int i : num) {
+            checkNumber[i]--;
+            if (checkNumber[i] < 0) {
+                return false;
+            }
+        }
         answer = clearWSpace(answer);
         if (checkBracket(answer)) {
             return checkAnsWithBrackets(answer);
@@ -255,19 +263,8 @@ public class Client extends Thread {
     }
 
     private boolean checkSimpleAns(String answer) {
-        if (answer.length() > 7) {
-            return false;
-        }
-        clearCheckNumber();
         int sum = 0;
         int[] num = getNumber(answer);
-        checkNumbers(number);
-        for (int i : num) {
-            checkNumber[i]--;
-            if (checkNumber[i] < 0) {
-                return false;
-            }
-        }
         for (int i = 1; i < answer.length(); i = i + 2) {
             char c = answer.charAt(i);
             if (c < '0' || c > '9') {
@@ -331,13 +328,13 @@ public class Client extends Thread {
             int closeIndex = answer.indexOf(')');
             int openIndex = answer.lastIndexOf('(', closeIndex);
             String subExpr = answer.substring(openIndex + 1, closeIndex);
-            int subResult = evaluateSimpleExpression(subExpr);
+            int subResult = evalNumber(subExpr);
             answer = answer.substring(0, openIndex) + subResult + answer.substring(closeIndex + 1);
         }
-        return evaluateSimpleExpression(answer) == 24;
+        return evalNumber(answer) == 24;
     }
 
-    private int evaluateSimpleExpression(String expr) {
+    private int evalNumber(String expr) {
         int[] num = getNumber(expr);
         int sum = num[0];
         for (int i = 1; i < expr.length(); i += 2) {
@@ -370,8 +367,11 @@ public class Client extends Thread {
     private int[] getNumber(String answer) {
         int[] res = new int[4];
         int index = 0;
-        for (int i = 0; i < answer.length(); i = i + 2) {
+        for (int i = 0; i < answer.length(); i++) {
             char c = answer.charAt(i);
+            if (c < '0' || c > '9') {
+                continue;
+            }
             int num = c - '0';
             res[index] = num;
             index++;
