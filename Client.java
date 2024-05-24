@@ -193,8 +193,17 @@ public class Client extends Thread {
                                 score2.setText(data[1]);
                                 score3.setText(data[2]);
                                 score4.setText(data[3]);
+                                for (int i=0;i<4;i++){
+                                    int s = data[i].length();
+                                    int check = data[i].charAt(s-8) - '0';
+                                    if (check >= 3){
+                                        JOptionPane.showMessageDialog(frame, "Player " + data[i].substring(0, s-10) + " wins");
+                                        System.exit(0);
+                                        sendData("win");
+                                    }
+                                }
+                                
                                 Thread.sleep(1000);
-
                             } catch (IOException | InterruptedException e) {
                                 System.out.println("Error in t3");
                             }
@@ -263,6 +272,7 @@ public class Client extends Thread {
     }
 
     public boolean checkAns(String answer) {
+        // return true;
         if (alreadyAnswered) {
             return false;
         }
@@ -447,6 +457,11 @@ public class Client extends Thread {
         String[] res = null;
         res = receivedData.substring(1, receivedData.length() - 1).split(", ");
         return res;
+    }
+
+    public String recvStringData() throws IOException {
+        String receivedData = in.readLine();
+        return receivedData;
     }
 
     public void clearInputField(JTextField inputField) {

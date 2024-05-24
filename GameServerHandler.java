@@ -13,7 +13,8 @@ public class GameServerHandler extends Thread {
     private BufferedReader in;
     private static int[] score = new int[4];
     private static String[] player = {"No Player" , "No Player" , "No Player" , "No Player"};
-    private static int index = 0;
+    private static Socket[] client = new Socket[4];
+    private static int num_player = 0;
     public static int[] problem = new int[4];
     public static int time;
     private static boolean createThreadCheck = false;
@@ -59,8 +60,17 @@ public class GameServerHandler extends Thread {
                     break;
                 }
 
+                if(inputLine.equals("win")){
+                    for (int i=0;i<4;i++) {
+                        client[i].close();
+                        client[i] = null;
+                        player[i] = "No Player";
+                        score[i] = 0;
+                    }
+                }
+
                 if(inputLine.equals("isFull")){
-                    if(index >= 4){
+                    if(num_player >= 4){
                         out.println("true");
                     } else {
                         out.println("false");
@@ -70,13 +80,17 @@ public class GameServerHandler extends Thread {
                 if(inputLine.startsWith("add")){
                     String[] str = inputLine.split(",");
                     String name = str[1];
-                    if(index < 4){
-                        player[index]=name;
-                        index++;
+                    if(num_player < 4){
+                        for (int i = 0; i < 4; i++) {
+                            if (player[i].equals("No Player")) {
+                                player[i] = name;
+                                client[i]=clientSocket;
+                                num_player++;
+                                break;
+                            }
+                        }
                     } else {
                         System.out.println("Max player reached");
-                        index = 0; // test
-                        player[index]=name; // test
                     }
                     
                 }
@@ -109,6 +123,14 @@ public class GameServerHandler extends Thread {
             }
         } catch (IOException e) {
             System.out.println("Client disconnected.");
+            for (int i = 0; i < 4; i++) {
+                if (client[i] == clientSocket) {
+                    player[i] = "No Player";
+                    score[i] = 0;
+                    client[i] = null;
+                    num_player--;
+                }
+            }
         } finally {
             try {
                 clientSocket.close();
