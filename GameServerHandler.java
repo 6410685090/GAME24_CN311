@@ -80,9 +80,24 @@ public class GameServerHandler extends Thread {
                 if(inputLine.startsWith("add")){
                     String[] str = inputLine.split(",");
                     String name = str[1];
+                    boolean check = false;
                     if(num_player < 4){
                         for (int i = 0; i < 4; i++) {
                             if (player[i].equals("No Player")) {
+                                for (int j = 0; j < 4; j++) {
+                                    if (player[j].equals(name)) {
+                                        Random rand = new Random();
+                                        int n = rand.nextInt(900)+100;
+                                        player[i] = name+"#"+n;
+                                        client[i]=clientSocket;
+                                        num_player++;
+                                        check = true;
+                                        break;
+                                    }
+                                }
+                                if(check){
+                                    break;
+                                }
                                 player[i] = name;
                                 client[i]=clientSocket;
                                 num_player++;
