@@ -7,7 +7,7 @@ public class Main {
         String serverAddress = "localhost";
 
         Client c = new Client(GAME_SERVER_PORT , serverAddress);
-        c.start();
+        c.run();
 
     }
 

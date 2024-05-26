@@ -2,14 +2,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class GameServer extends Thread {
+public class GameServer{
     private ServerSocket serverSocket;
     private static final int GAME_SERVER_PORT = 5000;
 
 
     public static void main(String[] args) {
         GameServer gameServer = new GameServer();
-        gameServer.start();
+        gameServer.run();
     }
 
     public GameServer() {

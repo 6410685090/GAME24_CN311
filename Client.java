@@ -10,7 +10,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 
-public class Client extends Thread {
+public class Client {
     private PrintWriter out;
     private BufferedReader in;
     private Socket socket;
@@ -56,7 +56,15 @@ public class Client extends Thread {
             JLabel label = new JLabel("Server is full. Try again later.");
             Font labelFont = label.getFont();
             label.setFont(new Font(labelFont.getName(), Font.PLAIN, 20));
+            JButton button = new JButton("Retry");
+            button.setPreferredSize(new Dimension(100, 50));
+            button.addActionListener(e -> {
+                Client c = new Client(5000, "localhost");
+                c.run();
+                frame.dispose();
+            });
             frame.add(label);
+            frame.add(button);
             frame.setVisible(true);
         }
         if (connect) {
